@@ -5,8 +5,9 @@ import struct
 
 import math
 
-import os
-import subprocess
+from multiprocessing import Process
+import time
+
 import sys
 
 #Заполнение файла числами
@@ -25,23 +26,29 @@ def createourfile():
 
 
 if __name__ == '__main__':
-  #  createourfile()
+ #  createourfile()
   
     #Параметры
-    all = 320 #всего чисел в файле
-    part = 15 #Всего чисел для вортировке можно взять
-    n = math.ceil(all / part) #Считаем сколько процессов запустить 
+    all5 = 320 #всего чисел в файле
+    part = 16 #Всего чисел для сортировки можно взять
+    #n = math.ceil(all / part) #Считаем сколько процессов запустить 
     
     #
-    n=5
-    pipes = []
-    for i in range(n):
-        command = [sys.executable, child]
-        pipe = subprocess.Popen(command, stdin=subprocess.PIPE)
-        pipes.append(pipe)
+   # n=5
+   # pipes = []
+   # for i in range(n):
+   #     command = [sys.executable, child]
+   #     pipe = subprocess.Popen(command, stdin=subprocess.PIPE)
+   #     pipes.append(pipe)
     #
 
-    with open("file.dat", "rb") as file:  
-            bytes = file.read()
-            values = struct.unpack('320I', bytes)
 
+    with open("file.dat", "rb") as file:  
+        while True:
+            bytes = file.read(part)
+            #print(len(bytes))
+            if bytes == "" or  bytes == "b''" or len(bytes)==0:
+                break
+            values = struct.unpack('4I', bytes)
+               
+           
