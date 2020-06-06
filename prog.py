@@ -8,23 +8,10 @@ import math
 from multiprocessing import Process
 import time
 
-#import sys 
+import sys 
 import os
 import shutil
 
-#Заполнение файла числами
-def createourfile():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-size',action="store", dest="size", default=320, type=int)
-    namespace = parser.parse_args()
-    percent = int(namespace.size/100)
-
-    with open("file.dat", "wb") as file:
-        for i in range(namespace.size):
-            b = random.randint(0, 4294967295)
-            file.write(struct.pack('I', b))
-            if i % percent == 0 or i % 1000000 == 0:
-                print(str(i/percent))
 
 def workingProcsort(pid_n , values):
     #Сортируем подмассив `values` обычной сортировкой вставками 
@@ -91,27 +78,27 @@ def merge_sort(nums):
 
 
 if __name__ == '__main__':
-    if not os.path.exists("file.dat"):
-        createourfile()
-        
+         
     #Параметры
-    all5 = 320 #всего чисел в файле
-    part = 16 #Всего чисел для сортировки можно взять  
     part = 16 #Всего чисел для сортировки можно взять
+    filename = 'file.dat' #Всего чисел для сортировки можно взять 
+    if len (sys.argv) > 1: 
+        filename = sys.argv[1]
+        part = sys.argv[2]
 
     if os.path.exists('temp'):
         shutil.rmtree('temp')
     os.mkdir("temp")
 
     processes = []
-    with open("file.dat", "rb") as file: 
+    with open(filename, "rb") as file: 
         i=0 
         while True:
             bytes = file.read(part)
             #print(len(bytes))
             if bytes == "" or  bytes == "b''" or len(bytes)==0:
                 break
-            values = struct.unpack('4I', bytes) 
+            values = struct.unpack(str(part/4)+'I', bytes) 
             process1 = Process(target = workingProcsort, args=(i , list(values)))          
             process1.start() 
             processes.append(process1)
@@ -119,7 +106,7 @@ if __name__ == '__main__':
     for i in range(len(processes)): 
         processes[i].join()
         print(processes[i].pid)
-    '''
+ 
     main_process = Process(name='Main_process', target=mainProc) 
     main_process.start()
     main_process.join()
