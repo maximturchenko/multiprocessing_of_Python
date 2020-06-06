@@ -22,8 +22,7 @@ def workingProcsort(pid_n , values):
             values[j + 1] = values[j]
             j -= 1
         values[j + 1] = ito_insert
-
-    #Надо записать во временный файл каждого процесса 
+ 
     cur_path = os.path.dirname(__file__)
     new_path = cur_path + '\\temp\\'+str(pid_n)+'.dat'
 
@@ -31,14 +30,14 @@ def workingProcsort(pid_n , values):
         for i in range(len(values)):
             file.write(struct.pack('I', values[i]))
 
-def mainProc():
+def mainProc(sf):
     path = os.path.dirname(__file__)
     files = os.listdir(path+"\\temp")
     values = []
     for f in range(len(files)):
         with open("temp/"+files[f] , "rb") as file: 
             bytes = file.read() 
-            values = values + list(struct.unpack('4I', bytes)) 
+            values = values + list(struct.unpack(sf, bytes)) 
     if os.path.exists('temp'):
         shutil.rmtree('temp')
     values = merge_sort(values)    
@@ -82,32 +81,34 @@ if __name__ == '__main__':
     #Параметры
     part = 16 #Всего чисел для сортировки можно взять
     filename = 'file.dat' #Всего чисел для сортировки можно взять 
-    if len (sys.argv) > 1: 
-        filename = sys.argv[1]
-        part = sys.argv[2]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f',action="store", dest="filename", default='file.dat')
+    parser.add_argument('-p',action="store", dest="part", default=16, type=int)
+    namespace = parser.parse_args() 
 
-    if os.path.exists('temp'):
-        shutil.rmtree('temp')
+    #if os.path.exists("temp")
+    shutil.rmtree("temp")
     os.mkdir("temp")
 
     processes = []
-    with open(filename, "rb") as file: 
+    sf = str(math.ceil(namespace.part/4))+'I'
+    with open(namespace.filename, "rb") as file: 
         i=0 
         while True:
-            bytes = file.read(part)
-            #print(len(bytes))
-            if bytes == "" or  bytes == "b''" or len(bytes)==0:
+            bytes = file.read(math.ceil(namespace.part/4)*4)
+            #print(len(bytes))         
+            if bytes == "" or  bytes == "b''" or len(bytes)==0 or len(bytes)<math.ceil(namespace.part/4)*4:
                 break
-            values = struct.unpack(str(part/4)+'I', bytes) 
+            values = struct.unpack(str(math.ceil(namespace.part/4))+'I', bytes) 
             process1 = Process(target = workingProcsort, args=(i , list(values)))          
             process1.start() 
             processes.append(process1)
             i+=1
     for i in range(len(processes)): 
         processes[i].join()
-        print(processes[i].pid)
+        #print(processes[i].pid)
  
-    main_process = Process(name='Main_process', target=mainProc) 
+    main_process = Process(name='Main_process', target=mainProc, args=(sf,) ) 
     main_process.start()
     main_process.join()
-           
+          

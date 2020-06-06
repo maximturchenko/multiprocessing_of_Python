@@ -27,10 +27,6 @@ def createourfile(size=320):
                 print(str(i/percent))
 
 
-if __name__ == '__main__': 
-    size = 320
-    if len (sys.argv) > 1: 
-        size = sys.argv[1]
-
+if __name__ == '__main__':  
     if not os.path.exists("file.dat"):
-        createourfile(size)
+        createourfile()
